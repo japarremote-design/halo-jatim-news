@@ -1,0 +1,6 @@
+{
+  "name": "HALOJATIMNEWS",
+  "description": "Portal Informasi Jawa Timur Terkini dengan berita real-time, autentikasi Google, dan database Firestore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
