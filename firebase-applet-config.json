@@ -1,12 +1,12 @@
 {
-  "projectId": "gen-lang-client-0478191671",
-  "appId": "1:996237358544:web:fdee966f2cfd93b21635d5",
-  "apiKey": "AIzaSyBuEoXwNqKlgcTYrkjb3GJ9UTlOdnk3y_o",
-  "authDomain": "gen-lang-client-0478191671.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-halojatimnews-6d42879b-f0ab-4a1b-8849-f4e487ea635c",
-  "storageBucket": "gen-lang-client-0478191671.firebasestorage.app",
-  "messagingSenderId": "996237358544",
+  "projectId": "halo-jatim-news",
+  "appId": "1:93773491763:web:88498118963229c76abd46",
+  "apiKey": "AIzaSyA-c4MtxRg3CAtmfwYVR_bGhCzq8c4ei7E",
+  "authDomain": "halo-jatim-news.firebaseapp.com",
+  "firestoreDatabaseId": "",
+  "storageBucket": "halo-jatim-news.firebasestorage.app",
+  "messagingSenderId": "93773491763",
   "measurementId": "",
-  "oAuthClientId": "996237358544-sdl3bqlnj2eermjjf5taj9083k57puo7.apps.googleusercontent.com",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }
