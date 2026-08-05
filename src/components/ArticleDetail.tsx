@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Calendar, User, Eye, Heart, Share2, Bookmark, BookmarkCheck, ArrowLeft, Clock } from 'lucide-react';
+import { ChevronRight, Calendar, User, Eye, Heart, Share2, Bookmark, BookmarkCheck, ArrowLeft, Clock, Pencil, Trash2 } from 'lucide-react';
 import { doc, updateDoc, increment, collection, addDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article, UserProfile } from '../types';
@@ -14,6 +14,8 @@ interface ArticleDetailProps {
   onSelectArticle: (article: Article) => void;
   onOpenAuth: () => void;
   onBookmarkChanged: () => void;
+  onEdit: (article: Article) => void;
+  onDeleted: () => void;
 }
 
 export const ArticleDetail: React.FC<ArticleDetailProps> = ({
@@ -23,7 +25,9 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   onBack,
   onSelectArticle,
   onOpenAuth,
-  onBookmarkChanged
+  onBookmarkChanged,
+  onEdit,
+  onDeleted
 }) => {
   const [likesCount, setLikesCount] = useState(article.likes || 0);
   const [hasLiked, setHasLiked] = useState(false);
@@ -123,20 +127,56 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     }
   };
 
+  const handleDeleteArticle = async () => {
+    if (!user) {
+      onOpenAuth();
+      return;
+    }
+    const confirmed = window.confirm(`Yakin mau hapus berita "${article.title}"? Tindakan ini tidak bisa dibatalkan.`);
+    if (!confirmed) return;
+
+    try {
+      await deleteDoc(doc(db, 'articles', article.id));
+      onDeleted();
+    } catch (err) {
+      console.error('Error deleting article:', err);
+      alert('Gagal menghapus berita. Coba lagi.');
+    }
+  };
+
   const relatedArticles = allArticles
     .filter(a => a.id !== article.id && a.category === article.category)
     .slice(0, 3);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-[#fe8028] bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-full transition-all cursor-pointer w-fit shadow-xs"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Kembali ke Beranda</span>
-      </button>
+      {/* Back button + Edit/Delete controls */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-[#fe8028] bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-full transition-all cursor-pointer w-fit shadow-xs"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Kembali ke Beranda</span>
+        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onEdit(article)}
+            className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-white bg-slate-100 hover:bg-[#001e40] px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={handleDeleteArticle}
+            className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Hapus</span>
+          </button>
+        </div>
+      </div>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[#fe8028]">

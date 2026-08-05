@@ -21,6 +21,16 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) =>
           </p>
           <p className="mt-auto text-gray-500 font-mono text-[11px] pt-4">
             © 2026 HALOJATIMNEWS.COM. All Rights Reserved.
+            <br />
+            Powered by{' '}
+            <a
+              href="https://qfazdigital.my.id/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-[#fe8028] underline underline-offset-2 transition-colors"
+            >
+              QFAZ Digital
+            </a>
           </p>
         </div>
 

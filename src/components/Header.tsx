@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper } from 'lucide-react';
 import { CategoryType, UserProfile } from '../types';
-import { LOGO_URL } from '../lib/seedData';
 
 interface HeaderProps {
   selectedCategory: CategoryType | 'Semua';
@@ -61,15 +60,15 @@ export const Header: React.FC<HeaderProps> = ({
           }}
         >
           <img 
-            src={LOGO_URL} 
+            src="/logo-icon-512.png" 
             alt="HALOJATIMNEWS Logo" 
-            className="h-11 w-auto object-contain bg-white px-2 py-1 rounded shadow-sm hover:scale-105 transition-transform" 
+            className="h-10 w-10 object-contain bg-white p-1 rounded-lg shadow-sm hover:scale-105 transition-transform" 
           />
           <div className="hidden sm:block">
-            <span className="font-extrabold text-xl md:text-2xl uppercase tracking-tighter text-white block">
-              HALOJATIMNEWS
+            <span className="font-extrabold text-xl md:text-2xl uppercase tracking-tighter text-white block leading-none">
+              HALOJATIMNEWS<span className="text-[#fe8028]">.COM</span>
             </span>
-            <span className="text-[10px] text-gray-300 font-medium tracking-widest block -mt-1">
+            <span className="text-[10px] text-gray-300 font-medium tracking-widest block mt-1">
               INFORMASI JAWA TIMUR TERKINI
             </span>
           </div>

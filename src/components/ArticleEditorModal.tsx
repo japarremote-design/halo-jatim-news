@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { X, Plus, Sparkles, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Plus, Sparkles, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article, CategoryType } from '../types';
+
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 interface ArticleEditorModalProps {
   isOpen: boolean;
@@ -30,6 +33,54 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
   const [isTrending, setIsTrending] = useState(articleToEdit?.isTrending || false);
   const [isOpinion, setIsOpinion] = useState(articleToEdit?.isOpinion || false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('File harus berupa gambar (JPG, PNG, WEBP, dll).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Ukuran gambar maksimal 5MB.');
+      return;
+    }
+
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+      alert('Upload gambar belum dikonfigurasi. Set VITE_CLOUDINARY_CLOUD_NAME dan VITE_CLOUDINARY_UPLOAD_PRESET di environment variables.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('folder', 'articles');
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText);
+      }
+
+      const data = await res.json();
+      setImageUrl(data.secure_url);
+    } catch (err) {
+      console.error('Gagal upload gambar:', err);
+      alert('Gagal upload gambar. Coba lagi atau pakai URL gambar manual.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -160,9 +211,41 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">URL Gambar / Hotlink *</label>
-            <div className="flex gap-2">
-              <div className="relative flex-grow">
+            <label className="block text-xs font-bold text-gray-700 mb-1">Gambar Berita *</label>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelected}
+              className="hidden"
+            />
+
+            <div className="flex gap-2 items-center">
+              <button
+                type="button"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold bg-[#001e40] text-white hover:bg-[#001e40]/90 disabled:opacity-60 transition-colors"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Mengunggah...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" /> Upload dari Perangkat
+                  </>
+                )}
+              </button>
+              <span className="text-[11px] text-gray-400">Maks 5MB</span>
+            </div>
+
+            <details className="mt-2">
+              <summary className="text-[11px] text-gray-500 cursor-pointer select-none">
+                Atau pakai URL gambar manual (opsional)
+              </summary>
+              <div className="relative flex-grow mt-2">
                 <ImageIcon className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
                 <input
                   type="url"
@@ -172,7 +255,13 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
                   className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:border-[#001e40] outline-none"
                 />
               </div>
-            </div>
+            </details>
+
+            {imageUrl && (
+              <div className="mt-2 relative w-full h-32 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
           </div>
 
           <div>

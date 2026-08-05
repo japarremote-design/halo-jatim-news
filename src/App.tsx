@@ -42,6 +42,7 @@ export default function App() {
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [articleEditorOpen, setArticleEditorOpen] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Auth User & Bookmarks
@@ -174,12 +175,17 @@ export default function App() {
             onSelectArticle={selectArticle}
             onOpenAuth={() => setAuthModalOpen(true)}
             onBookmarkChanged={fetchUserBookmarks}
+            onEdit={(art) => {
+              setEditingArticle(art);
+              setArticleEditorOpen(true);
+            }}
+            onDeleted={() => goHome()}
           />
         ) : (
           /* News Feed Portal View */
           <div className="flex flex-col xl:flex-row gap-8">
             {/* Left Ad Skyscraper (Desktop view) */}
-            <aside className="hidden 2xl:block w-[120px] flex-shrink-0">
+            <aside className="hidden lg:block w-[140px] flex-shrink-0">
               <AdBanner type="skyscraper" />
             </aside>
 
@@ -201,6 +207,11 @@ export default function App() {
                 onSelectCategory={(cat) => setSelectedCategory(cat)}
               />
             </main>
+
+            {/* Right Ad Skyscraper (Desktop view) - mirrors the left one */}
+            <aside className="hidden lg:block w-[140px] flex-shrink-0">
+              <AdBanner type="skyscraper" />
+            </aside>
 
             {/* Right Sidebar (300px) */}
             <aside className="w-full xl:w-[320px] flex-shrink-0">
@@ -241,9 +252,14 @@ export default function App() {
 
       <ArticleEditorModal
         isOpen={articleEditorOpen}
-        onClose={() => setArticleEditorOpen(false)}
+        articleToEdit={editingArticle}
+        onClose={() => {
+          setArticleEditorOpen(false);
+          setEditingArticle(null);
+        }}
         onSaved={() => {
           // Stream will auto update
+          setEditingArticle(null);
         }}
       />
 
