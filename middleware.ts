@@ -14,8 +14,8 @@
  * visitors are untouched and continue to get the normal React app.
  */
 
-const FIRESTORE_PROJECT_ID = 'gen-lang-client-0478191671';
-const FIRESTORE_DATABASE_ID = 'ai-studio-halojatimnews-6d42879b-f0ab-4a1b-8849-f4e487ea635c';
+const FIRESTORE_PROJECT_ID = 'halo-jatim-news';
+const FIRESTORE_DATABASE_ID = '(default)';
 const SITE_NAME = 'HALOJATIMNEWS';
 const SITE_URL = 'https://halojatimnews-com.vercel.app';
 const DEFAULT_IMAGE = `${SITE_URL}/og-default.jpg`;
