@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 import { db, auth, onAuthStateChanged, firebaseSignOut } from './lib/firebase';
 import { seedInitialArticlesIfEmpty } from './lib/seedData';
@@ -22,10 +23,21 @@ import { AdBanner } from './components/AdBanner';
 import { Footer } from './components/Footer';
 
 export default function App() {
+  const { id: articleIdParam } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'Semua'>('Semua');
+
+  // Selected article is derived from the URL (/artikel/:id) instead of local
+  // state, so every article has its own shareable, bookmarkable link.
+  const selectedArticle = articleIdParam
+    ? articles.find(a => a.id === articleIdParam) ?? null
+    : null;
+
+  const selectArticle = (article: Article) => navigate(`/artikel/${article.id}`);
+  const goHome = () => navigate('/');
 
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -125,7 +137,7 @@ export default function App() {
         selectedCategory={selectedCategory}
         onSelectCategory={(cat) => {
           setSelectedCategory(cat);
-          setSelectedArticle(null);
+          goHome();
         }}
         onOpenSearch={() => setSearchOverlayOpen(true)}
         onOpenAuth={() => setAuthModalOpen(true)}
@@ -136,7 +148,7 @@ export default function App() {
             setArticleEditorOpen(true);
           }
         }}
-        onGoHome={() => setSelectedArticle(null)}
+        onGoHome={() => goHome()}
         onOpenBookmarks={() => setAuthModalOpen(true)}
         user={user}
         onSignOut={handleSignOut}
@@ -158,8 +170,8 @@ export default function App() {
             article={selectedArticle}
             allArticles={articles}
             user={user}
-            onBack={() => setSelectedArticle(null)}
-            onSelectArticle={(art) => setSelectedArticle(art)}
+            onBack={() => goHome()}
+            onSelectArticle={selectArticle}
             onOpenAuth={() => setAuthModalOpen(true)}
             onBookmarkChanged={fetchUserBookmarks}
           />
@@ -177,7 +189,7 @@ export default function App() {
               {selectedCategory === 'Semua' && heroArticle && (
                 <HeroSection
                   article={heroArticle}
-                  onSelectArticle={(art) => setSelectedArticle(art)}
+                  onSelectArticle={selectArticle}
                 />
               )}
 
@@ -185,7 +197,7 @@ export default function App() {
               <CategoryGrid
                 articles={articles}
                 selectedCategory={selectedCategory}
-                onSelectArticle={(art) => setSelectedArticle(art)}
+                onSelectArticle={selectArticle}
                 onSelectCategory={(cat) => setSelectedCategory(cat)}
               />
             </main>
@@ -194,7 +206,7 @@ export default function App() {
             <aside className="w-full xl:w-[320px] flex-shrink-0">
               <Sidebar
                 articles={articles}
-                onSelectArticle={(art) => setSelectedArticle(art)}
+                onSelectArticle={selectArticle}
               />
             </aside>
           </div>
@@ -212,9 +224,9 @@ export default function App() {
       <Footer
         onSelectCategory={(cat) => {
           setSelectedCategory(cat);
-          setSelectedArticle(null);
+          goHome();
         }}
-        onGoHome={() => setSelectedArticle(null)}
+        onGoHome={() => goHome()}
       />
 
       {/* Modals & Overlays */}
@@ -223,7 +235,7 @@ export default function App() {
         onClose={() => setAuthModalOpen(false)}
         user={user}
         bookmarkedArticles={bookmarkedArticles}
-        onSelectArticle={(art) => setSelectedArticle(art)}
+        onSelectArticle={selectArticle}
         onSignOut={handleSignOut}
       />
 
@@ -239,7 +251,7 @@ export default function App() {
         isOpen={searchOverlayOpen}
         onClose={() => setSearchOverlayOpen(false)}
         articles={articles}
-        onSelectArticle={(art) => setSelectedArticle(art)}
+        onSelectArticle={selectArticle}
       />
     </div>
   );
