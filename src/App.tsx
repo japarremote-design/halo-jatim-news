@@ -18,6 +18,7 @@ import { Sidebar } from './components/Sidebar';
 import { ArticleDetail } from './components/ArticleDetail';
 import { AuthModal } from './components/AuthModal';
 import { ArticleEditorModal } from './components/ArticleEditorModal';
+import { AdManagerModal } from './components/AdManagerModal';
 import { SearchOverlay } from './components/SearchOverlay';
 import { AdBanner } from './components/AdBanner';
 import { Footer } from './components/Footer';
@@ -42,6 +43,7 @@ export default function App() {
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [articleEditorOpen, setArticleEditorOpen] = useState(false);
+  const [adManagerOpen, setAdManagerOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
@@ -149,6 +151,13 @@ export default function App() {
             setArticleEditorOpen(true);
           }
         }}
+        onOpenAdManager={() => {
+          if (!user) {
+            setAuthModalOpen(true);
+          } else {
+            setAdManagerOpen(true);
+          }
+        }}
         onGoHome={() => goHome()}
         onOpenBookmarks={() => setAuthModalOpen(true)}
         user={user}
@@ -251,6 +260,7 @@ export default function App() {
       />
 
       <ArticleEditorModal
+        key={`${articleEditorOpen}-${editingArticle?.id ?? 'new'}`}
         isOpen={articleEditorOpen}
         articleToEdit={editingArticle}
         onClose={() => {
@@ -261,6 +271,11 @@ export default function App() {
           // Stream will auto update
           setEditingArticle(null);
         }}
+      />
+
+      <AdManagerModal
+        isOpen={adManagerOpen}
+        onClose={() => setAdManagerOpen(false)}
       />
 
       <SearchOverlay

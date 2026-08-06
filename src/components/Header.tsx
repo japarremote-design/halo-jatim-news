@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper } from 'lucide-react';
+import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper, Megaphone } from 'lucide-react';
 import { CategoryType, UserProfile } from '../types';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   onOpenSearch: () => void;
   onOpenAuth: () => void;
   onOpenArticleEditor: () => void;
+  onOpenAdManager: () => void;
   onGoHome: () => void;
   onOpenBookmarks: () => void;
   user: UserProfile | null;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenAuth,
   onOpenArticleEditor,
+  onOpenAdManager,
   onGoHome,
   onOpenBookmarks,
   user,
@@ -117,6 +119,16 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <PlusCircle className="w-4 h-4" />
             <span>Tulis Berita</span>
+          </button>
+
+          {/* Manage Ads Button */}
+          <button
+            onClick={onOpenAdManager}
+            className="hidden lg:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="Kelola Iklan"
+          >
+            <Megaphone className="w-4 h-4" />
+            <span>Iklan</span>
           </button>
 
           {/* Share */}
@@ -263,6 +275,19 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <PlusCircle className="w-4 h-4" />
               Tulis Berita Baru
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                onOpenAdManager();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full bg-white/10 text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <Megaphone className="w-4 h-4" />
+              Kelola Iklan
             </button>
           </div>
         </div>

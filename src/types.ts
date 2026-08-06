@@ -46,3 +46,16 @@ export interface UserProfile {
   photoURL: string | null;
   isAnonymous?: boolean;
 }
+
+export type AdPosition = 'skyscraper' | 'square' | 'billboard';
+
+export interface Ad {
+  id: string;
+  position: AdPosition;
+  label: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+  expiresAt: string; // ISO date string, empty = no expiry
+  createdAt: string;
+}

@@ -1,11 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { Ad, AdPosition } from '../types';
 
 interface AdBannerProps {
-  type: 'skyscraper' | 'square' | 'billboard';
+  type: AdPosition;
   className?: string;
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({ type, className = '' }) => {
+  const [ad, setAd] = useState<Ad | null>(null);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'ads'),
+      where('position', '==', type),
+      where('isActive', '==', true)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const now = new Date();
+      const candidates = snap.docs
+        .map(d => ({ id: d.id, ...d.data() } as Ad))
+        .filter(a => !a.expiresAt || new Date(a.expiresAt) >= now)
+        .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      setAd(candidates[0] || null);
+    }, () => setAd(null));
+    return () => unsub();
+  }, [type]);
+
+  const dims = {
+    skyscraper: { w: 120, h: 600, label: '120x600' },
+    square: { w: 300, h: 250, label: '300x250' },
+    billboard: { w: 728, h: 90, label: '728x90' },
+  }[type];
+
+  if (ad) {
+    return (
+      <a
+        href={ad.linkUrl}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        className={`block overflow-hidden rounded ${type === 'billboard' ? 'w-full my-8' : ''} ${className}`}
+        title={ad.label}
+      >
+        <img
+          src={ad.imageUrl}
+          alt={ad.label}
+          className={`w-full object-cover ${type === 'skyscraper' ? 'sticky top-28' : ''}`}
+          style={type !== 'billboard' ? { aspectRatio: `${dims.w}/${dims.h}` } : undefined}
+        />
+      </a>
+    );
+  }
+
   if (type === 'skyscraper') {
     return (
       <div className={`sticky top-28 bg-[#eceef0] flex flex-col items-center justify-center text-[#43474f] font-mono text-xs border border-[#c3c6d1] h-[600px] rounded ${className}`}>
