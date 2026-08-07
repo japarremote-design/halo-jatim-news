@@ -11,7 +11,7 @@
  */
 export const ADMIN_EMAILS: string[] = [
   'japar.remote@gmail.com',
-  'storyvideoislami234@gmail.com'
+  'storyvideoislami234@gmail.com',
 ];
 
 export function isAdmin(email: string | null | undefined): boolean {
