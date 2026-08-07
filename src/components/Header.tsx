@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper, Megaphone } from 'lucide-react';
+import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper, Megaphone, Tag } from 'lucide-react';
 import { CategoryType, UserProfile } from '../types';
 import { isAdmin } from '../lib/admin';
 
@@ -10,14 +10,14 @@ interface HeaderProps {
   onOpenAuth: () => void;
   onOpenArticleEditor: () => void;
   onOpenAdManager: () => void;
+  onOpenCategoryManager: () => void;
+  categories: CategoryType[];
   onGoHome: () => void;
   onOpenBookmarks: () => void;
   user: UserProfile | null;
   onSignOut: () => void;
   bookmarkCount: number;
 }
-
-const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'];
 
 export const Header: React.FC<HeaderProps> = ({
   selectedCategory,
@@ -26,6 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuth,
   onOpenArticleEditor,
   onOpenAdManager,
+  onOpenCategoryManager,
+  categories,
   onGoHome,
   onOpenBookmarks,
   user,
@@ -93,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Beranda
           </button>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => {
@@ -134,6 +136,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Megaphone className="w-4 h-4" />
               <span>Iklan</span>
+            </button>
+          )}
+
+          {/* Manage Categories Button (admin only) */}
+          {userIsAdmin && (
+            <button
+              onClick={onOpenCategoryManager}
+              className="hidden xl:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              title="Kelola Kategori"
+            >
+              <Tag className="w-4 h-4" />
+              <span>Kategori</span>
             </button>
           )}
 
@@ -256,7 +270,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Semua Berita
             </button>
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => {
@@ -299,6 +313,21 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Megaphone className="w-4 h-4" />
                 Kelola Iklan
+              </button>
+            </div>
+          )}
+
+          {userIsAdmin && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  onOpenCategoryManager();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full bg-white/10 text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
+              >
+                <Tag className="w-4 h-4" />
+                Kelola Kategori
               </button>
             </div>
           )}

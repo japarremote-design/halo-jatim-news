@@ -8,7 +8,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 import { db, auth, onAuthStateChanged, firebaseSignOut } from './lib/firebase';
 import { seedInitialArticlesIfEmpty } from './lib/seedData';
-import { Article, CategoryType, UserProfile } from './types';
+import { seedCategoriesIfEmpty } from './lib/categories';
+import { Article, CategoryType, Category, UserProfile } from './types';
 import { isAdmin } from './lib/admin';
 
 // Components
@@ -21,6 +22,7 @@ import { AuthModal } from './components/AuthModal';
 import { ArticleEditorModal } from './components/ArticleEditorModal';
 import { ArticleManagerModal } from './components/ArticleManagerModal';
 import { AdManagerModal } from './components/AdManagerModal';
+import { CategoryManagerModal } from './components/CategoryManagerModal';
 import { SearchOverlay } from './components/SearchOverlay';
 import { AdBanner } from './components/AdBanner';
 import { Footer } from './components/Footer';
@@ -32,6 +34,7 @@ export default function App() {
   const navigate = useNavigate();
 
   const [articles, setArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'Semua'>('Semua');
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -42,6 +45,7 @@ export default function App() {
   // ones too (e.g. right after creating, before flipping it live).
   const viewerIsAdmin = isAdmin(user?.email);
   const visibleArticles = articles.filter(a => a.isActive !== false);
+  const activeCategoryNames = categories.filter(c => c.isActive).map(c => c.name);
   const lookupPool = viewerIsAdmin ? articles : visibleArticles;
   const selectedArticle = articleIdParam
     ? lookupPool.find(a => a.id === articleIdParam) ?? null
@@ -59,6 +63,7 @@ export default function App() {
   const [articleEditorOpen, setArticleEditorOpen] = useState(false);
   const [articleManagerOpen, setArticleManagerOpen] = useState(false);
   const [adManagerOpen, setAdManagerOpen] = useState(false);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
@@ -69,6 +74,7 @@ export default function App() {
   useEffect(() => {
     // 1. Trigger initial seed check
     seedInitialArticlesIfEmpty();
+    seedCategoriesIfEmpty();
 
     // 2. Listen to real-time articles stream from Firestore
     const articlesQuery = collection(db, 'articles');
@@ -90,7 +96,23 @@ export default function App() {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // 3. Listen to real-time categories stream from Firestore
+    const categoriesQuery = collection(db, 'categories');
+    const unsubscribeCategories = onSnapshot(categoriesQuery, (snapshot) => {
+      const fetched: Category[] = [];
+      snapshot.forEach((docSnap) => {
+        fetched.push({ id: docSnap.id, ...docSnap.data() } as Category);
+      });
+      fetched.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+      setCategories(fetched);
+    }, (error) => {
+      console.error('Firestore categories stream error:', error);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeCategories();
+    };
   }, []);
 
   // Listen to Auth State
@@ -172,6 +194,14 @@ export default function App() {
             setAdManagerOpen(true);
           }
         }}
+        onOpenCategoryManager={() => {
+          if (!user) {
+            setAuthModalOpen(true);
+          } else {
+            setCategoryManagerOpen(true);
+          }
+        }}
+        categories={activeCategoryNames}
         onGoHome={() => goHome()}
         onOpenBookmarks={() => setAuthModalOpen(true)}
         user={user}
@@ -231,6 +261,7 @@ export default function App() {
               {/* Categorized News Grid */}
               <CategoryGrid
                 articles={visibleArticles}
+                categories={activeCategoryNames}
                 selectedCategory={selectedCategory}
                 onSelectArticle={selectArticle}
                 onSelectCategory={(cat) => setSelectedCategory(cat)}
@@ -262,6 +293,7 @@ export default function App() {
 
       {/* Footer */}
       <Footer
+        categories={activeCategoryNames}
         onSelectCategory={(cat) => {
           setSelectedCategory(cat);
           goHome();
@@ -297,6 +329,7 @@ export default function App() {
         key={`${articleEditorOpen}-${editingArticle?.id ?? 'new'}`}
         isOpen={articleEditorOpen}
         articleToEdit={editingArticle}
+        categories={activeCategoryNames}
         onClose={() => {
           setArticleEditorOpen(false);
           setEditingArticle(null);
@@ -310,6 +343,12 @@ export default function App() {
       <AdManagerModal
         isOpen={adManagerOpen}
         onClose={() => setAdManagerOpen(false)}
+      />
+
+      <CategoryManagerModal
+        isOpen={categoryManagerOpen}
+        categories={categories}
+        onClose={() => setCategoryManagerOpen(false)}
       />
 
       <SearchOverlay

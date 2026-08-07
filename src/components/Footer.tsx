@@ -5,11 +5,12 @@ import { CategoryType } from '../types';
 import { STATIC_PAGE_SLUGS, STATIC_PAGE_LABELS } from '../lib/staticPages';
 
 interface FooterProps {
+  categories: CategoryType[];
   onSelectCategory: (category: CategoryType | 'Semua') => void;
   onGoHome: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) => {
+export const Footer: React.FC<FooterProps> = ({ categories, onSelectCategory, onGoHome }) => {
   const navigate = useNavigate();
   return (
     <footer className="bg-[#1e1e1e] text-gray-300 font-sans w-full mt-16 border-t border-gray-800">
@@ -43,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) =>
             Kategori Berita
           </h4>
           <div className="grid grid-cols-2 gap-2 text-gray-400">
-            {['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'].map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => {

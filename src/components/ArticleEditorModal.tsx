@@ -12,18 +12,18 @@ interface ArticleEditorModalProps {
   onClose: () => void;
   articleToEdit?: Article | null;
   onSaved: () => void;
+  categories: CategoryType[];
 }
-
-const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'];
 
 export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
   isOpen,
   onClose,
   articleToEdit,
-  onSaved
+  onSaved,
+  categories
 }) => {
   const [title, setTitle] = useState(articleToEdit?.title || '');
-  const [category, setCategory] = useState<CategoryType>(articleToEdit?.category || 'Jawa Timur');
+  const [category, setCategory] = useState<CategoryType>(articleToEdit?.category || categories[0] || '');
   const [excerpt, setExcerpt] = useState(articleToEdit?.excerpt || '');
   const [content, setContent] = useState(articleToEdit?.content || '');
   const [imageUrl, setImageUrl] = useState(articleToEdit?.imageUrl || '');
@@ -194,7 +194,7 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
                 onChange={(e) => setCategory(e.target.value as CategoryType)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#001e40] outline-none bg-white"
               >
-                {CATEGORIES.map(cat => (
+                {categories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>

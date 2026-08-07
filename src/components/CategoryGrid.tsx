@@ -4,6 +4,7 @@ import { Article, CategoryType } from '../types';
 
 interface CategoryGridProps {
   articles: Article[];
+  categories: CategoryType[];
   selectedCategory: CategoryType | 'Semua';
   onSelectArticle: (article: Article) => void;
   onSelectCategory: (category: CategoryType) => void;
@@ -11,6 +12,7 @@ interface CategoryGridProps {
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({
   articles,
+  categories,
   selectedCategory,
   onSelectArticle,
   onSelectCategory
@@ -22,7 +24,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
     : articles.filter(a => a.category === selectedCategory);
 
   const categoriesToRender: CategoryType[] = selectedCategory === 'Semua'
-    ? ['Jawa Timur', 'Politik', 'Hukum', 'Desa', 'Keislaman', 'Madura', 'Kuliner', 'Destinasi Wisata', 'Olahraga']
+    ? categories
     : [selectedCategory];
 
   return (

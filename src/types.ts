@@ -1,4 +1,14 @@
-export type CategoryType = 'Madura' | 'Jawa Timur' | 'Politik' | 'Desa' | 'Keislaman' | 'Hukum' | 'Kuliner' | 'Destinasi Wisata' | 'Olahraga';
+// Category names now come from Firestore (see Category below) so editors can
+// add new ones without a code change. Kept as a string alias for readability
+// wherever it's used across the app.
+export type CategoryType = string;
+
+export interface Category {
+  id: string; // slug, e.g. "pendidikan"
+  name: string; // display name, e.g. "Pendidikan"
+  isActive: boolean;
+  createdAt: string;
+}
 
 export interface Article {
   id: string;
