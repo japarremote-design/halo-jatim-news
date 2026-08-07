@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Calendar, User, Eye, Heart, Share2, Bookmark, BookmarkCheck, ArrowLeft, Clock, Pencil, Trash2 } from 'lucide-react';
+import { ChevronRight, Calendar, User, Eye, Heart, Share2, Bookmark, BookmarkCheck, ArrowLeft, Clock, Pencil, EyeOff } from 'lucide-react';
 import { doc, updateDoc, increment, collection, addDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article, UserProfile } from '../types';
@@ -16,7 +16,6 @@ interface ArticleDetailProps {
   onOpenAuth: () => void;
   onBookmarkChanged: () => void;
   onEdit: (article: Article) => void;
-  onDeleted: () => void;
 }
 
 export const ArticleDetail: React.FC<ArticleDetailProps> = ({
@@ -27,8 +26,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   onSelectArticle,
   onOpenAuth,
   onBookmarkChanged,
-  onEdit,
-  onDeleted
+  onEdit
 }) => {
   const [likesCount, setLikesCount] = useState(article.likes || 0);
   const [hasLiked, setHasLiked] = useState(false);
@@ -128,20 +126,20 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     }
   };
 
-  const handleDeleteArticle = async () => {
+  const isArticleActive = article.isActive !== false;
+
+  const handleToggleActive = async () => {
     if (!user || !isAdmin(user.email)) {
       onOpenAuth();
       return;
     }
-    const confirmed = window.confirm(`Yakin mau hapus berita "${article.title}"? Tindakan ini tidak bisa dibatalkan.`);
-    if (!confirmed) return;
-
     try {
-      await deleteDoc(doc(db, 'articles', article.id));
-      onDeleted();
+      await updateDoc(doc(db, 'articles', article.id), {
+        isActive: !isArticleActive,
+      });
     } catch (err) {
-      console.error('Error deleting article:', err);
-      alert('Gagal menghapus berita. Coba lagi.');
+      console.error('Error toggling article status:', err);
+      alert('Gagal mengubah status berita. Coba lagi.');
     }
   };
 
@@ -151,7 +149,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back button + Edit/Delete controls */}
+      {/* Back button + Edit/Toggle controls */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <button
           onClick={onBack}
@@ -163,6 +161,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
         {isAdmin(user?.email) && (
           <div className="flex items-center gap-2">
+            {!isArticleActive && (
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
+                Nonaktif (hanya lo yang bisa lihat)
+              </span>
+            )}
             <button
               onClick={() => onEdit(article)}
               className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-white bg-slate-100 hover:bg-[#001e40] px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
@@ -171,11 +174,15 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               <span>Edit</span>
             </button>
             <button
-              onClick={handleDeleteArticle}
-              className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
+              onClick={handleToggleActive}
+              className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs ${
+                isArticleActive
+                  ? 'text-amber-600 hover:text-white bg-amber-50 hover:bg-amber-500'
+                  : 'text-emerald-600 hover:text-white bg-emerald-50 hover:bg-emerald-600'
+              }`}
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Hapus</span>
+              {isArticleActive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              <span>{isArticleActive ? 'Nonaktifkan' : 'Aktifkan'}</span>
             </button>
           </div>
         )}

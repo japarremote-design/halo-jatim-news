@@ -20,6 +20,7 @@ export interface Article {
   isOpinion?: boolean;
   opinionAuthor?: string;
   opinionRole?: string;
+  isActive?: boolean; // false = hidden from readers (soft-delete)
 }
 
 export interface CommentItem {

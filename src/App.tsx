@@ -9,6 +9,7 @@ import { collection, onSnapshot, query, where, getDocs } from 'firebase/firestor
 import { db, auth, onAuthStateChanged, firebaseSignOut } from './lib/firebase';
 import { seedInitialArticlesIfEmpty } from './lib/seedData';
 import { Article, CategoryType, UserProfile } from './types';
+import { isAdmin } from './lib/admin';
 
 // Components
 import { Header } from './components/Header';
@@ -18,6 +19,7 @@ import { Sidebar } from './components/Sidebar';
 import { ArticleDetail } from './components/ArticleDetail';
 import { AuthModal } from './components/AuthModal';
 import { ArticleEditorModal } from './components/ArticleEditorModal';
+import { ArticleManagerModal } from './components/ArticleManagerModal';
 import { AdManagerModal } from './components/AdManagerModal';
 import { SearchOverlay } from './components/SearchOverlay';
 import { AdBanner } from './components/AdBanner';
@@ -30,11 +32,17 @@ export default function App() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'Semua'>('Semua');
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   // Selected article is derived from the URL (/artikel/:id) instead of local
   // state, so every article has its own shareable, bookmarkable link.
+  // Regular readers only ever see active articles; admin can preview inactive
+  // ones too (e.g. right after creating, before flipping it live).
+  const viewerIsAdmin = isAdmin(user?.email);
+  const visibleArticles = articles.filter(a => a.isActive !== false);
+  const lookupPool = viewerIsAdmin ? articles : visibleArticles;
   const selectedArticle = articleIdParam
-    ? articles.find(a => a.id === articleIdParam) ?? null
+    ? lookupPool.find(a => a.id === articleIdParam) ?? null
     : null;
 
   const selectArticle = (article: Article) => navigate(`/artikel/${article.id}`);
@@ -43,12 +51,12 @@ export default function App() {
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [articleEditorOpen, setArticleEditorOpen] = useState(false);
+  const [articleManagerOpen, setArticleManagerOpen] = useState(false);
   const [adManagerOpen, setAdManagerOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Auth User & Bookmarks
-  const [user, setUser] = useState<UserProfile | null>(null);
   const [bookmarkedArticleIds, setBookmarkedArticleIds] = useState<string[]>([]);
 
   // Seed initial data if Firestore is empty and listen for real-time updates
@@ -130,8 +138,8 @@ export default function App() {
     }
   };
 
-  const bookmarkedArticles = articles.filter(a => bookmarkedArticleIds.includes(a.id));
-  const heroArticle = articles.find(a => a.isHero) || articles[0];
+  const bookmarkedArticles = visibleArticles.filter(a => bookmarkedArticleIds.includes(a.id));
+  const heroArticle = visibleArticles.find(a => a.isHero) || visibleArticles[0];
 
   return (
     <div className="bg-[#f8f9fb] text-[#191c1e] min-h-screen flex flex-col font-sans antialiased selection:bg-[#fe8028] selection:text-white">
@@ -148,7 +156,7 @@ export default function App() {
           if (!user) {
             setAuthModalOpen(true);
           } else {
-            setArticleEditorOpen(true);
+            setArticleManagerOpen(true);
           }
         }}
         onOpenAdManager={() => {
@@ -178,7 +186,7 @@ export default function App() {
           /* Article Detail View */
           <ArticleDetail
             article={selectedArticle}
-            allArticles={articles}
+            allArticles={visibleArticles}
             user={user}
             onBack={() => goHome()}
             onSelectArticle={selectArticle}
@@ -188,7 +196,6 @@ export default function App() {
               setEditingArticle(art);
               setArticleEditorOpen(true);
             }}
-            onDeleted={() => goHome()}
           />
         ) : (
           /* News Feed Portal View */
@@ -210,7 +217,7 @@ export default function App() {
 
               {/* Categorized News Grid */}
               <CategoryGrid
-                articles={articles}
+                articles={visibleArticles}
                 selectedCategory={selectedCategory}
                 onSelectArticle={selectArticle}
                 onSelectCategory={(cat) => setSelectedCategory(cat)}
@@ -225,7 +232,7 @@ export default function App() {
             {/* Right Sidebar (300px) */}
             <aside className="w-full xl:w-[320px] flex-shrink-0">
               <Sidebar
-                articles={articles}
+                articles={visibleArticles}
                 onSelectArticle={selectArticle}
               />
             </aside>
@@ -259,6 +266,20 @@ export default function App() {
         onSignOut={handleSignOut}
       />
 
+      <ArticleManagerModal
+        isOpen={articleManagerOpen}
+        articles={articles}
+        onClose={() => setArticleManagerOpen(false)}
+        onAddNew={() => {
+          setEditingArticle(null);
+          setArticleEditorOpen(true);
+        }}
+        onEdit={(art) => {
+          setEditingArticle(art);
+          setArticleEditorOpen(true);
+        }}
+      />
+
       <ArticleEditorModal
         key={`${articleEditorOpen}-${editingArticle?.id ?? 'new'}`}
         isOpen={articleEditorOpen}
@@ -281,7 +302,7 @@ export default function App() {
       <SearchOverlay
         isOpen={searchOverlayOpen}
         onClose={() => setSearchOverlayOpen(false)}
-        articles={articles}
+        articles={visibleArticles}
         onSelectArticle={selectArticle}
       />
     </div>

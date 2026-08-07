@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Megaphone, Upload, Loader2, Pencil, Trash2, ExternalLink } from 'lucide-react';
-import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { X, Plus, Megaphone, Upload, Loader2, Pencil, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { collection, addDoc, doc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Ad, AdPosition } from '../types';
 
@@ -34,14 +34,12 @@ export const AdManagerModal: React.FC<AdManagerModalProps> = ({ isOpen, onClose 
 
   if (!isOpen) return null;
 
-  const handleDelete = async (ad: Ad) => {
-    const confirmed = window.confirm(`Hapus iklan "${ad.label}"?`);
-    if (!confirmed) return;
+  const handleToggleActive = async (ad: Ad) => {
     try {
-      await deleteDoc(doc(db, 'ads', ad.id));
+      await updateDoc(doc(db, 'ads', ad.id), { isActive: !ad.isActive });
     } catch (err) {
-      console.error('Gagal hapus iklan:', err);
-      alert('Gagal menghapus iklan.');
+      console.error('Gagal mengubah status iklan:', err);
+      alert('Gagal mengubah status iklan.');
     }
   };
 
@@ -139,11 +137,15 @@ export const AdManagerModal: React.FC<AdManagerModalProps> = ({ isOpen, onClose 
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(ad)}
-                        className="p-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                        title="Hapus"
+                        onClick={() => handleToggleActive(ad)}
+                        className={`p-1.5 rounded-full transition-colors ${
+                          ad.isActive
+                            ? 'bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white'
+                            : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white'
+                        }`}
+                        title={ad.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        {ad.isActive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>

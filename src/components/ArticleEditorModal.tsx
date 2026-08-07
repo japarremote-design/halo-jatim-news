@@ -32,6 +32,7 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
   const [isHero, setIsHero] = useState(articleToEdit?.isHero || false);
   const [isTrending, setIsTrending] = useState(articleToEdit?.isTrending || false);
   const [isOpinion, setIsOpinion] = useState(articleToEdit?.isOpinion || false);
+  const [isActive, setIsActive] = useState(articleToEdit?.isActive !== false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,7 +111,8 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
           tags,
           isHero,
           isTrending,
-          isOpinion
+          isOpinion,
+          isActive
         });
       } else {
         // Create new article in Firestore
@@ -127,7 +129,8 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
           tags,
           isHero,
           isTrending,
-          isOpinion
+          isOpinion,
+          isActive
         };
         await addDoc(collection(db, 'articles'), newArt);
       }
@@ -327,6 +330,16 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
                 className="rounded text-[#fe8028] focus:ring-[#fe8028]"
               />
               Kategori Opini
+            </label>
+
+            <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="rounded text-emerald-600 focus:ring-emerald-500"
+              />
+              Aktifkan tayang (tampil ke pembaca)
             </label>
           </div>
 
