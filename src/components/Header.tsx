@@ -57,7 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex justify-between items-center h-20 px-4 md:px-6 max-w-7xl mx-auto">
         {/* Logo & Brand */}
         <div 
-          className="flex items-center gap-3 cursor-pointer select-none"
+          className="flex items-center gap-3 cursor-pointer select-none flex-shrink-0"
           onClick={() => {
             onSelectCategory('Semua');
             onGoHome();
@@ -79,13 +79,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Navigation Links Desktop */}
-        <nav className="hidden lg:flex gap-6 items-center">
+        <nav className="hidden xl:flex gap-5 items-center flex-1 min-w-0 overflow-x-auto whitespace-nowrap px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             onClick={() => {
               onSelectCategory('Semua');
               onGoHome();
             }}
-            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer active:scale-95 ${
+            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer active:scale-95 flex-shrink-0 ${
               selectedCategory === 'Semua' 
                 ? 'text-[#fe8028] border-b-2 border-[#fe8028] pb-1' 
                 : 'text-white/80 hover:text-white hover:text-[#ffb68d]'
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onSelectCategory(cat);
                 onGoHome();
               }}
-              className={`text-sm font-semibold transition-colors duration-200 cursor-pointer active:scale-95 ${
+              className={`text-sm font-semibold transition-colors duration-200 cursor-pointer active:scale-95 flex-shrink-0 ${
                 selectedCategory === cat
                   ? 'text-[#fe8028] border-b-2 border-[#fe8028] pb-1'
                   : 'text-white/80 hover:text-white hover:text-[#ffb68d]'
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {/* Create Article Button (admin only) */}
           {userIsAdmin && (
             <button
@@ -129,7 +129,7 @@ export const Header: React.FC<HeaderProps> = ({
           {userIsAdmin && (
             <button
               onClick={onOpenAdManager}
-              className="hidden lg:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="hidden xl:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
               title="Kelola Iklan"
             >
               <Megaphone className="w-4 h-4" />
@@ -233,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-white hover:bg-white/10 rounded-full cursor-pointer"
+            className="xl:hidden p-2 text-white hover:bg-white/10 rounded-full cursor-pointer"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -242,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#001e40] border-t border-white/10 px-4 py-4 space-y-3">
+        <div className="xl:hidden bg-[#001e40] border-t border-white/10 px-4 py-4 space-y-3">
           <div className="grid grid-cols-2 gap-2 pb-3 border-b border-white/10">
             <button
               onClick={() => {
