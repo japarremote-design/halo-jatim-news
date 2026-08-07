@@ -1,4 +1,4 @@
-export type CategoryType = 'Madura' | 'Jawa Timur' | 'Politik' | 'Desa' | 'Keislaman' | 'Hukum';
+export type CategoryType = 'Madura' | 'Jawa Timur' | 'Politik' | 'Desa' | 'Keislaman' | 'Hukum' | 'Kuliner' | 'Destinasi Wisata' | 'Olahraga';
 
 export interface Article {
   id: string;
@@ -31,6 +31,13 @@ export interface CommentItem {
   userAvatar?: string;
   text: string;
   createdAt: string;
+}
+
+export interface PageContent {
+  slug: string;
+  title: string;
+  content: string;
+  updatedAt: string;
 }
 
 export interface BookmarkItem {

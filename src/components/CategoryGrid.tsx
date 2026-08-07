@@ -22,7 +22,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
     : articles.filter(a => a.category === selectedCategory);
 
   const categoriesToRender: CategoryType[] = selectedCategory === 'Semua'
-    ? ['Jawa Timur', 'Politik', 'Hukum', 'Desa', 'Keislaman', 'Madura']
+    ? ['Jawa Timur', 'Politik', 'Hukum', 'Desa', 'Keislaman', 'Madura', 'Kuliner', 'Destinasi Wisata', 'Olahraga']
     : [selectedCategory];
 
   return (

@@ -14,7 +14,7 @@ interface ArticleEditorModalProps {
   onSaved: () => void;
 }
 
-const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum'];
+const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'];
 
 export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
   isOpen,

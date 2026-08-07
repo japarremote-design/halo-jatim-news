@@ -6,7 +6,8 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null &&
         request.auth.token.email in [
-          'japar.remote@gmail.com'
+          'japar.remote@gmail.com',
+          'storyvideoislami234@gmail.com'
         ];
     }
 
@@ -37,6 +38,13 @@ service cloud.firestore {
     match /ads/{adId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
+    }
+
+    // Pages: Editable footer pages (Tentang, Redaksi, Kontak Kami, Iklan).
+    // Anyone can read, only admin can create/edit.
+    match /pages/{pageSlug} {
+      allow read: if true;
+      allow create, update: if isAdmin();
     }
   }
 }

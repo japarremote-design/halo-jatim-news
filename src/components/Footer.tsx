@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Share2, Mail, ExternalLink } from 'lucide-react';
 import { CategoryType } from '../types';
+import { STATIC_PAGE_SLUGS, STATIC_PAGE_LABELS } from '../lib/staticPages';
 
 interface FooterProps {
   onSelectCategory: (category: CategoryType | 'Semua') => void;
@@ -8,6 +10,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-[#1e1e1e] text-gray-300 font-sans w-full mt-16 border-t border-gray-800">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-6 py-10 max-w-7xl mx-auto text-xs md:text-sm">
@@ -40,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) =>
             Kategori Berita
           </h4>
           <div className="grid grid-cols-2 gap-2 text-gray-400">
-            {['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum'].map((cat) => (
+            {['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => {
@@ -71,11 +74,18 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onGoHome }) =>
             </button>
           </div>
           <div className="flex flex-wrap gap-4 text-gray-400 text-xs">
-            <a href="#" className="hover:text-white transition-colors underline-offset-4 hover:underline">Sitemap</a>
-            <a href="#" className="hover:text-white transition-colors underline-offset-4 hover:underline">About Us</a>
-            <a href="#" className="hover:text-white transition-colors underline-offset-4 hover:underline">Contact Info</a>
-            <a href="#" className="hover:text-white transition-colors underline-offset-4 hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors underline-offset-4 hover:underline">Terms of Service</a>
+            {STATIC_PAGE_SLUGS.map((slug) => (
+              <button
+                key={slug}
+                onClick={() => {
+                  navigate(`/halaman/${slug}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="hover:text-white transition-colors underline-offset-4 hover:underline cursor-pointer"
+              >
+                {STATIC_PAGE_LABELS[slug]}
+              </button>
+            ))}
           </div>
         </div>
       </div>

@@ -17,7 +17,7 @@ interface HeaderProps {
   bookmarkCount: number;
 }
 
-const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum'];
+const CATEGORIES: CategoryType[] = ['Madura', 'Jawa Timur', 'Politik', 'Desa', 'Keislaman', 'Hukum', 'Kuliner', 'Destinasi Wisata', 'Olahraga'];
 
 export const Header: React.FC<HeaderProps> = ({
   selectedCategory,

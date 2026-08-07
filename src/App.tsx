@@ -24,9 +24,11 @@ import { AdManagerModal } from './components/AdManagerModal';
 import { SearchOverlay } from './components/SearchOverlay';
 import { AdBanner } from './components/AdBanner';
 import { Footer } from './components/Footer';
+import { StaticPageView } from './components/StaticPageView';
+import { StaticPageSlug, STATIC_PAGE_SLUGS } from './lib/staticPages';
 
 export default function App() {
-  const { id: articleIdParam } = useParams<{ id?: string }>();
+  const { id: articleIdParam, pageSlug } = useParams<{ id?: string; pageSlug?: string }>();
   const navigate = useNavigate();
 
   const [articles, setArticles] = useState<Article[]>([]);
@@ -47,6 +49,10 @@ export default function App() {
 
   const selectArticle = (article: Article) => navigate(`/artikel/${article.id}`);
   const goHome = () => navigate('/');
+  const validPageSlug: StaticPageSlug | null =
+    pageSlug && (STATIC_PAGE_SLUGS as readonly string[]).includes(pageSlug)
+      ? (pageSlug as StaticPageSlug)
+      : null;
 
   // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -196,6 +202,13 @@ export default function App() {
               setEditingArticle(art);
               setArticleEditorOpen(true);
             }}
+          />
+        ) : validPageSlug ? (
+          /* Static Footer Page (Tentang / Redaksi / Kontak Kami / Iklan) */
+          <StaticPageView
+            slug={validPageSlug}
+            user={user}
+            onBack={() => goHome()}
           />
         ) : (
           /* News Feed Portal View */
