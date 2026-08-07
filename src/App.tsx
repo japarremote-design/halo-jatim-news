@@ -82,8 +82,8 @@ export default function App() {
       const fetched: Article[] = [];
       snapshot.forEach((docSnap) => {
         fetched.push({
-          id: docSnap.id,
-          ...docSnap.data()
+          ...docSnap.data(),
+          id: docSnap.id
         } as Article);
       });
 
@@ -101,7 +101,7 @@ export default function App() {
     const unsubscribeCategories = onSnapshot(categoriesQuery, (snapshot) => {
       const fetched: Category[] = [];
       snapshot.forEach((docSnap) => {
-        fetched.push({ id: docSnap.id, ...docSnap.data() } as Category);
+        fetched.push({ ...docSnap.data(), id: docSnap.id } as Category);
       });
       fetched.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
       setCategories(fetched);

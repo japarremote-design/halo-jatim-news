@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Plus, Tag, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { collection, addDoc, doc, updateDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Category } from '../types';
 import { slugifyCategory } from '../lib/categories';
@@ -49,14 +49,10 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
 
     setIsSaving(true);
     try {
-      // Double-check against Firestore too, in case local list is stale
-      const existing = await getDocs(query(collection(db, 'categories'), where('id', '==', id)));
-      if (!existing.empty) {
-        setError('Kategori dengan nama itu udah ada.');
-        setIsSaving(false);
-        return;
-      }
-      await addDoc(collection(db, 'categories'), {
+      // Doc ID IS the slug (setDoc, not addDoc) - keeps the Firestore
+      // document ID and the "id" everyone refers to in the UI always in
+      // sync, and doubles as the duplicate-name check.
+      await setDoc(doc(db, 'categories', id), {
         id,
         name,
         isActive: true,
