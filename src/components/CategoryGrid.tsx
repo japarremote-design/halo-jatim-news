@@ -75,6 +75,9 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                           <h3 className="font-bold text-base text-gray-900 group-hover:text-[#001e40] transition-colors line-clamp-2 leading-snug mb-1">
                             {article.title}
                           </h3>
+                          <p className="text-sm text-gray-600 line-clamp-2 leading-snug mb-2">
+                            {article.excerpt}
+                          </p>
                           <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />

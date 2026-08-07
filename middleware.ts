@@ -39,6 +39,29 @@ function stripFirestoreValue(field: any): string | undefined {
   return field.stringValue ?? field.integerValue ?? undefined;
 }
 
+// WhatsApp's crawler is notoriously strict about the OG image: it wants a
+// modest file size, a standard 1200x630 aspect ratio, and explicit
+// width/height meta tags — otherwise it silently shows no image at all
+// (other platforms like Telegram are much more lenient). If the image was
+// uploaded via Cloudinary, we can ask Cloudinary to serve an already
+// resized/compressed JPG at the exact dimensions WhatsApp expects, by
+// injecting a transformation segment into the URL.
+function toWhatsAppFriendlyImage(url: string): { url: string; width: number; height: number } {
+  const width = 1200;
+  const height = 630;
+  const marker = '/upload/';
+  if (url.includes('res.cloudinary.com') && url.includes(marker)) {
+    const idx = url.indexOf(marker) + marker.length;
+    const transformed =
+      url.slice(0, idx) +
+      `w_${width},h_${height},c_fill,g_auto,q_auto,f_jpg/` +
+      url.slice(idx);
+    return { url: transformed, width, height };
+  }
+  // Not a Cloudinary URL (e.g. manual hotlink or the default logo) - use as-is.
+  return { url, width, height };
+}
+
 async function fetchArticle(articleId: string) {
   const url =
     `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}` +
@@ -62,9 +85,11 @@ function renderHtml(opts: {
   title: string;
   description: string;
   image: string;
+  imageWidth: number;
+  imageHeight: number;
   url: string;
 }): string {
-  const { title, description, image, url } = opts;
+  const { title, description, image, imageWidth, imageHeight, url } = opts;
   const fullTitle = `${escapeHtml(title)} - ${SITE_NAME}`;
 
   return `<!doctype html>
@@ -79,6 +104,11 @@ function renderHtml(opts: {
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:image" content="${escapeHtml(image)}" />
+<meta property="og:image:secure_url" content="${escapeHtml(image)}" />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content="${imageWidth}" />
+<meta property="og:image:height" content="${imageHeight}" />
+<meta property="og:image:alt" content="${escapeHtml(title)}" />
 <meta property="og:url" content="${escapeHtml(url)}" />
 
 <meta name="twitter:card" content="summary_large_image" />
@@ -114,10 +144,14 @@ export default async function middleware(request: Request) {
     const article = await fetchArticle(articleId);
     if (!article) return;
 
+    const { url: ogImage, width, height } = toWhatsAppFriendlyImage(article.imageUrl);
+
     const html = renderHtml({
       title: article.title,
       description: article.excerpt,
-      image: article.imageUrl,
+      image: ogImage,
+      imageWidth: width,
+      imageHeight: height,
       url: url.toString(),
     });
 
