@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Share2, Search, Menu, X, User as UserIcon, PlusCircle, LogOut, BookmarkCheck, Newspaper, Megaphone } from 'lucide-react';
 import { CategoryType, UserProfile } from '../types';
+import { isAdmin } from '../lib/admin';
 
 interface HeaderProps {
   selectedCategory: CategoryType | 'Semua';
@@ -33,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userIsAdmin = isAdmin(user?.email);
 
   const handleShareSite = async () => {
     if (navigator.share) {
@@ -111,25 +113,29 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          {/* Create Article Button */}
-          <button
-            onClick={onOpenArticleEditor}
-            className="hidden sm:flex items-center gap-1.5 bg-[#fe8028] hover:bg-[#e06d19] text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Tambah Berita Baru"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Tulis Berita</span>
-          </button>
+          {/* Create Article Button (admin only) */}
+          {userIsAdmin && (
+            <button
+              onClick={onOpenArticleEditor}
+              className="hidden sm:flex items-center gap-1.5 bg-[#fe8028] hover:bg-[#e06d19] text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              title="Tambah Berita Baru"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Tulis Berita</span>
+            </button>
+          )}
 
-          {/* Manage Ads Button */}
-          <button
-            onClick={onOpenAdManager}
-            className="hidden lg:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Kelola Iklan"
-          >
-            <Megaphone className="w-4 h-4" />
-            <span>Iklan</span>
-          </button>
+          {/* Manage Ads Button (admin only) */}
+          {userIsAdmin && (
+            <button
+              onClick={onOpenAdManager}
+              className="hidden lg:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              title="Kelola Iklan"
+            >
+              <Megaphone className="w-4 h-4" />
+              <span>Iklan</span>
+            </button>
+          )}
 
           {/* Share */}
           <button
@@ -188,16 +194,18 @@ export const Header: React.FC<HeaderProps> = ({
                     </span>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      onOpenArticleEditor();
-                    }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-gray-700 sm:hidden"
-                  >
-                    <PlusCircle className="w-4 h-4 text-emerald-600" />
-                    Tulis Berita Baru
-                  </button>
+                  {userIsAdmin && (
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onOpenArticleEditor();
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-gray-700 sm:hidden"
+                    >
+                      <PlusCircle className="w-4 h-4 text-emerald-600" />
+                      Tulis Berita Baru
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
@@ -265,31 +273,35 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-2 pt-1">
-            <button
-              onClick={() => {
-                onOpenArticleEditor();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full bg-[#fe8028] text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Tulis Berita Baru
-            </button>
-          </div>
+          {userIsAdmin && (
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={() => {
+                  onOpenArticleEditor();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full bg-[#fe8028] text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Tulis Berita Baru
+              </button>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                onOpenAdManager();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full bg-white/10 text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
-            >
-              <Megaphone className="w-4 h-4" />
-              Kelola Iklan
-            </button>
-          </div>
+          {userIsAdmin && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  onOpenAdManager();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full bg-white/10 text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-2"
+              >
+                <Megaphone className="w-4 h-4" />
+                Kelola Iklan
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>

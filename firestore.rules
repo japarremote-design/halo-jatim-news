@@ -1,14 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Articles: Anyone can read, logged-in users can write or increment views/likes
+
+    // Admin allowlist - keep this in sync with src/lib/admin.ts
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'ganti-dengan-email-gmail-lo@gmail.com'
+        ];
+    }
+
+    // Articles: Anyone can read. Only admin can create/edit/delete content.
+    // Exception: any reader (even not logged in) can bump views/likes counters.
     match /articles/{articleId} {
       allow read: if true;
-      allow create, update: if true; // Allow initial seeding and view count increments
-      allow delete: if request.auth != null;
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'likes']);
+      allow delete: if isAdmin();
     }
     
-    // Comments: Anyone can read, logged-in users can post/manage
+    // Comments: Anyone can read, logged-in users can post/manage their own
     match /comments/{commentId} {
       allow read: if true;
       allow create: if request.auth != null;
@@ -21,10 +33,10 @@ service cloud.firestore {
       allow create, delete: if request.auth != null;
     }
 
-    // Ads: Anyone can read (so banners render for visitors), only logged-in users can manage
+    // Ads: Anyone can read (so banners render for visitors), only admin can manage
     match /ads/{adId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
   }
 }

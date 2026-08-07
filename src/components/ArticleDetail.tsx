@@ -3,6 +3,7 @@ import { ChevronRight, Calendar, User, Eye, Heart, Share2, Bookmark, BookmarkChe
 import { doc, updateDoc, increment, collection, addDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article, UserProfile } from '../types';
+import { isAdmin } from '../lib/admin';
 import { Comments } from './Comments';
 import { AdBanner } from './AdBanner';
 
@@ -128,7 +129,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   };
 
   const handleDeleteArticle = async () => {
-    if (!user) {
+    if (!user || !isAdmin(user.email)) {
       onOpenAuth();
       return;
     }
@@ -160,22 +161,24 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <span>Kembali ke Beranda</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onEdit(article)}
-            className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-white bg-slate-100 hover:bg-[#001e40] px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-            <span>Edit</span>
-          </button>
-          <button
-            onClick={handleDeleteArticle}
-            className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Hapus</span>
-          </button>
-        </div>
+        {isAdmin(user?.email) && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onEdit(article)}
+              className="flex items-center gap-1.5 text-xs font-bold text-[#001e40] hover:text-white bg-slate-100 hover:bg-[#001e40] px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              <span>Edit</span>
+            </button>
+            <button
+              onClick={handleDeleteArticle}
+              className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Hapus</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Breadcrumb */}
