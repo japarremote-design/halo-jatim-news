@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gavel, ShieldAlert, Clock, Eye, Heart, ExternalLink } from 'lucide-react';
+import { Clock, Eye, Heart, ExternalLink } from 'lucide-react';
 import { Article, CategoryType } from '../types';
 
 interface CategoryGridProps {
@@ -64,8 +64,12 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                         onClick={() => onSelectArticle(article)}
                         className="flex gap-4 group cursor-pointer border p-3 rounded-lg bg-slate-50/80 hover:bg-slate-100/80 border-slate-200 transition-all hover:shadow-sm"
                       >
-                        <div className="w-16 h-16 bg-[#001e40]/10 rounded-lg flex items-center justify-center flex-shrink-0 text-[#001e40]">
-                          <Gavel className="w-8 h-8 text-[#001e40]" />
+                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[#001e40]/10">
+                          <img
+                            src={article.imageUrl}
+                            alt={article.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div className="flex-grow">
                           <h3 className="font-bold text-base text-gray-900 group-hover:text-[#001e40] transition-colors line-clamp-2 leading-snug mb-1">
