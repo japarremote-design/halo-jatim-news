@@ -1,6 +1,6 @@
-import React from 'react';
-import { X, Plus, Newspaper, Pencil, Eye, EyeOff } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useState } from 'react';
+import { X, Plus, Newspaper, Pencil, Eye, EyeOff, Wand2, Loader2 } from 'lucide-react';
+import { doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article } from '../types';
 
@@ -19,7 +19,39 @@ export const ArticleManagerModal: React.FC<ArticleManagerModalProps> = ({
   onAddNew,
   onEdit,
 }) => {
+  const [isFixingAuthor, setIsFixingAuthor] = useState(false);
+
   if (!isOpen) return null;
+
+  const OLD_AUTHOR = 'Redaksi HaloJatim';
+  const NEW_AUTHOR = 'Redaksi HaloJatimNews';
+  const outdatedArticles = articles.filter(a => a.author === OLD_AUTHOR);
+
+  const handleFixOldAuthorName = async () => {
+    if (outdatedArticles.length === 0) return;
+    const confirmed = window.confirm(
+      `Ganti penulis "${OLD_AUTHOR}" jadi "${NEW_AUTHOR}" di ${outdatedArticles.length} berita sekaligus?`
+    );
+    if (!confirmed) return;
+
+    setIsFixingAuthor(true);
+    try {
+      // Firestore doesn't have SQL-style "UPDATE ... WHERE" - the pattern is:
+      // query/filter the matching docs first, then batch-write the update to
+      // each one. writeBatch commits all of them together in one request.
+      const batch = writeBatch(db);
+      outdatedArticles.forEach(article => {
+        batch.update(doc(db, 'articles', article.id), { author: NEW_AUTHOR });
+      });
+      await batch.commit();
+      alert(`Berhasil, ${outdatedArticles.length} berita diperbarui.`);
+    } catch (err) {
+      console.error('Gagal memperbaiki nama penulis lama:', err);
+      alert('Gagal memperbaiki data. Coba lagi.');
+    } finally {
+      setIsFixingAuthor(false);
+    }
+  };
 
   const handleToggleActive = async (article: Article) => {
     try {
@@ -59,12 +91,26 @@ export const ArticleManagerModal: React.FC<ArticleManagerModalProps> = ({
         </div>
 
         <div className="overflow-y-auto pr-1 flex-grow space-y-4">
-          <button
-            onClick={onAddNew}
-            className="flex items-center gap-2 bg-[#001e40] hover:bg-[#003366] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm"
-          >
-            <Plus className="w-4 h-4" /> Tulis Berita Baru
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={onAddNew}
+              className="flex items-center gap-2 bg-[#001e40] hover:bg-[#003366] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm"
+            >
+              <Plus className="w-4 h-4" /> Tulis Berita Baru
+            </button>
+
+            {outdatedArticles.length > 0 && (
+              <button
+                onClick={handleFixOldAuthorName}
+                disabled={isFixingAuthor}
+                className="flex items-center gap-2 bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-700 px-4 py-2 rounded-lg text-xs font-bold shadow-sm disabled:opacity-50"
+                title={`Ganti "${OLD_AUTHOR}" jadi "${NEW_AUTHOR}" di semua berita sekaligus`}
+              >
+                {isFixingAuthor ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                <span>Perbaiki {outdatedArticles.length} penulis lama</span>
+              </button>
+            )}
+          </div>
 
           {articles.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-10">

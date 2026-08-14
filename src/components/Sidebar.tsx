@@ -29,16 +29,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ articles, onSelectArticle }) =
         </div>
 
         <ul className="flex flex-col gap-4">
-          {trendingArticles.map((article, index) => (
+          {trendingArticles.map((article) => (
             <li 
               key={article.id}
               onClick={() => onSelectArticle(article)}
               className="flex gap-3 items-start group cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition-colors"
             >
-              <span className="text-3xl font-black text-slate-300 group-hover:text-[#fe8028] transition-colors font-display min-w-[28px] text-center">
-                {index + 1}
-              </span>
-              <div className="flex-grow">
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+                <img
+                  src={article.imageUrl}
+                  alt={article.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <div className="flex-grow min-w-0">
                 <h4 className="font-bold text-sm text-gray-800 group-hover:text-[#001e40] transition-colors line-clamp-2 leading-snug">
                   {article.title}
                 </h4>

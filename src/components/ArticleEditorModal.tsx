@@ -27,7 +27,7 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
   const [excerpt, setExcerpt] = useState(articleToEdit?.excerpt || '');
   const [content, setContent] = useState(articleToEdit?.content || '');
   const [imageUrl, setImageUrl] = useState(articleToEdit?.imageUrl || '');
-  const [author, setAuthor] = useState(articleToEdit?.author || 'Redaksi HaloJatim');
+  const [author, setAuthor] = useState(articleToEdit?.author || 'Redaksi HaloJatimNews');
   const [tagsInput, setTagsInput] = useState(articleToEdit?.tags ? articleToEdit.tags.join(', ') : 'Jawa Timur, Berita');
   const [isHero, setIsHero] = useState(articleToEdit?.isHero || false);
   const [isTrending, setIsTrending] = useState(articleToEdit?.isTrending || false);
@@ -207,7 +207,7 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
                 required
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Redaksi HaloJatim / Budi Santoso"
+                placeholder="Redaksi HaloJatimNews / Budi Santoso"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#001e40] outline-none"
               />
             </div>
