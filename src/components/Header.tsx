@@ -65,11 +65,14 @@ export const Header: React.FC<HeaderProps> = ({
             onGoHome();
           }}
         >
-          <img 
-            src="/logo-header-white.png" 
-            alt="HALOJATIMNEWS Logo" 
-            className="h-11 w-11 object-contain hover:scale-105 transition-transform" 
-          />
+          <div className="relative flex items-center justify-center flex-shrink-0 group">
+            <div className="absolute w-10 h-10 rounded-full bg-white/25 blur-md group-hover:bg-white/35 transition-colors"></div>
+            <img 
+              src="/logo-header-white.png" 
+              alt="HALOJATIMNEWS Logo" 
+              className="relative h-11 w-11 object-contain group-hover:scale-105 transition-transform" 
+            />
+          </div>
           <div className="hidden sm:block">
             <span className="font-extrabold text-xl md:text-2xl uppercase tracking-tighter text-white block leading-none">
               HALOJATIMNEWS<span className="text-[#fe8028]">.COM</span>
