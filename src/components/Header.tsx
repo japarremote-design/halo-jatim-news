@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
           <img 
             src="/logo-icon-512.png" 
             alt="HALOJATIMNEWS Logo" 
-            className="h-10 w-10 object-contain bg-white p-1 rounded-lg shadow-sm hover:scale-105 transition-transform" 
+            className="h-[52px] w-[52px] object-contain bg-white p-1.5 rounded-lg shadow-sm hover:scale-105 transition-transform" 
           />
           <div className="hidden sm:block">
             <span className="font-extrabold text-xl md:text-2xl uppercase tracking-tighter text-white block leading-none">
